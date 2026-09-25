@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  basePath: '/cryptorium',
+  assetPrefix: '/cryptorium/',
 };
 
 export default nextConfig;
