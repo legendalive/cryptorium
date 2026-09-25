@@ -1,10 +1,13 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 export default function Home() {
-  return (
-    <main>
-      <h1>Cryptorium</h1>
-      <p>Application loading...</p>
-    </main>
-  );
-}
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
