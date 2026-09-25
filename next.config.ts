@@ -8,6 +8,7 @@ if (isGithubActions && process.env.GITHUB_REPOSITORY) {
 
 const nextConfig = {
   output: 'export',
+  trailingSlash: true, // REQUIRED for GitHub Pages static routing
   images: {
     unoptimized: true,
   },
