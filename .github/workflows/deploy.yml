@@ -26,16 +26,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Install dependencies
         run: npm install
 
       - name: Build Next.js
         run: npm run build
 
-      - name: Disable Jekyll
+      - name: Disable Jekyll in Export Output
         run: touch ./out/.nojekyll
 
       - name: Upload artifact
