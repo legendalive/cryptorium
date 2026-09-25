@@ -1,4 +1,1 @@
-'use client';
-
-export default function Home() {
-  return
+'use client'; export default function Home() { return
