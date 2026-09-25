@@ -1,19 +1,13 @@
-/** @type {import('next').NextConfig} */
-const isGithubActions = process.env.GITHUB_ACTIONS || false;
+import type { NextConfig } from 'next';
 
-let repo = '';
-if (isGithubActions && process.env.GITHUB_REPOSITORY) {
-  repo = '/' + process.env.GITHUB_REPOSITORY.replace(/.*?\//, '');
-}
-
-const nextConfig = {
+const nextConfig: NextConfig = {
   output: 'export',
-  trailingSlash: true, // REQUIRED for GitHub Pages static routing
+  trailingSlash: true,
   images: {
     unoptimized: true,
   },
-  basePath: repo,
-  assetPrefix: repo,
+  basePath: '/cryptorium',
+  assetPrefix: '/cryptorium/',
 };
 
 export default nextConfig;
