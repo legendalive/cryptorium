@@ -9,7 +9,7 @@
 
 export const WS_ENDPOINTS = {
   TESTNET: 'wss://stream.binancefuture.com/ws/btcusdt@aggTrade',
-  PRODUCTION: 'wss://fstream.binance.com/ws/btcusdt@aggTrade'
+  PRODUCTION: 'wss://fstream.binance.com/market/stream?streams=btcusdt@aggTrade/btcusdt@kline_1m'
 };
 
 export const WS_STATUS = {
