@@ -2456,9 +2456,7 @@
 
       // --- PHASE 4: GEMINI AI MARKET REGIME SUPERVISOR INSTANCE ---
       const geminiSupervisor = new GeminiSupervisor({
-        endpoint:    const geminiSupervisor = new GeminiSupervisor({
-       endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-       timeoutMs: 2500,
+        endpoint: '/api/supervisor',
         timeoutMs: 2500,
         confidenceThreshold: 0.80,
         logger: (category, message, level) => {
