@@ -2273,6 +2273,7 @@
         ENVIRONMENT: 'cryptorium_environment_v1',
         LOGS: 'cryptorium_session_logs_v1',
         ONBOARDING_DISMISSED: 'cryptorium_onboarding_dismissed'
+        ,SYMBOL: 'cryptorium_selected_symbol_v1'
       };
 
       // Strict Conservative Parameters
@@ -2817,6 +2818,16 @@ auditLogTerminal.scrollTop = 0;
 
       function loadStoredSettings() {
         try {
+         const savedSymbol = localStorage.getItem(STORAGE_KEYS.SYMBOL);
+if (savedSymbol && symbolSelector) {
+    const isValid = Array.from(symbolSelector.options).some(opt => opt.value === savedSymbol);
+    if (isValid) {
+        state.currentSymbol = savedSymbol;
+        symbolSelector.value = savedSymbol;
+    }
+} 
+          
+          
           const savedEnv = localStorage.getItem(STORAGE_KEYS.ENVIRONMENT) || 'testnet';
           setEnvironment(savedEnv, false);
 
@@ -3994,6 +4005,7 @@ if (btnResetState) btnResetState.addEventListener('click', resetAppState);
 
         // Symbol change
         symbolSelector.addEventListener('change', (e) => {
+          try { localStorage.setItem(STORAGE_KEYS.SYMBOL, selected); } catch(e) {}
           const selected = e.target.value;
           state.currentSymbol = selected;
           symbolPricePreview.textContent = 'SYNCING...';
