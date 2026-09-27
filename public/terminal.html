@@ -2097,7 +2097,6 @@
         <div style="display: flex; gap: 8px;">
           <button type="button" class="btn-clear-keys" id="btnClearCredentials">CLEAR KEYS</button>
           <button type="button" class="btn-clear-keys" id="btnResetState" style="color: var(--accent-yellow); border-color: var(--accent-yellow);">RESET STATE</button>
-          <button type="button" class="btn-clear-keys" id="btnResetState" style="color: var(--accent-yellow); border-color: var(--accent-yellow);">RESET STATE</button>
           <button type="button" class="btn-clear-keys" id="btnCancelSettings">CANCEL</button>
         </div>
         <button type="button" class="btn-save-apply" id="btnSaveCredentials">SAVE & APPLY SETTINGS</button>
@@ -2274,7 +2273,6 @@
         ENVIRONMENT: 'cryptorium_environment_v1',
         LOGS: 'cryptorium_session_logs_v1',
         ONBOARDING_DISMISSED: 'cryptorium_onboarding_dismissed'
-        ,SYMBOL: 'cryptorium_selected_symbol_v1'
       };
 
       // Strict Conservative Parameters
@@ -2819,16 +2817,6 @@ auditLogTerminal.scrollTop = 0;
 
       function loadStoredSettings() {
         try {
-         const savedSymbol = localStorage.getItem(STORAGE_KEYS.SYMBOL);
-if (savedSymbol && symbolSelector) {
-    const isValid = Array.from(symbolSelector.options).some(opt => opt.value === savedSymbol);
-    if (isValid) {
-        state.currentSymbol = savedSymbol;
-        symbolSelector.value = savedSymbol;
-    }
-} 
-          
-          
           const savedEnv = localStorage.getItem(STORAGE_KEYS.ENVIRONMENT) || 'testnet';
           setEnvironment(savedEnv, false);
 
@@ -2937,20 +2925,6 @@ function resetAppState() {
     updateEngineStateUI(LOOP_STATES.IDLE);
     logAudit('SYSTEM', 'Application state and risk metrics manually reset via UI.', 'warn');
 }
-      
-    function resetAppState() {
-    state.dailyPnl = 0.00;
-    state.dailyLoss = 0.00;
-    state.startingDailyEquity = state.environment === 'production' ? state.walletBalance : 100.00;
-    state.circuitBreakerTripped = false;
-    state.positions = [];
-    if (riskEngine) riskEngine.resetCircuitBreaker('Manual UI State Reset');
-    updateLossUI();
-    renderPositions();
-    updateEngineStateUI(LOOP_STATES.IDLE);
-    logAudit('SYSTEM', 'Application state and risk metrics manually reset via UI.', 'warn');
-}  
-      
       
       
       
@@ -3989,8 +3963,6 @@ function resetAppState() {
         btnClearCredentials.addEventListener('click', clearCredentials);
         const btnResetState = document.getElementById('btnResetState');
 if (btnResetState) btnResetState.addEventListener('click', resetAppState);
-        const btnResetState = document.getElementById('btnResetState');
-if (btnResetState) btnResetState.addEventListener('click', resetAppState);
         btnTestConnection.addEventListener('click', testBinanceConnection);
 
         settingsModalOverlay.addEventListener('click', (e) => {
@@ -4022,7 +3994,6 @@ if (btnResetState) btnResetState.addEventListener('click', resetAppState);
 
         // Symbol change
         symbolSelector.addEventListener('change', (e) => {
-          try { localStorage.setItem(STORAGE_KEYS.SYMBOL, selected); } catch(e) {}
           const selected = e.target.value;
           state.currentSymbol = selected;
           symbolPricePreview.textContent = 'SYNCING...';
