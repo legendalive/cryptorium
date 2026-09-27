@@ -2095,6 +2095,7 @@
       <div class="settings-modal-footer">
         <div style="display: flex; gap: 8px;">
           <button type="button" class="btn-clear-keys" id="btnClearCredentials">CLEAR KEYS</button>
+          <button type="button" class="btn-clear-keys" id="btnResetState" style="color: var(--accent-yellow); border-color: var(--accent-yellow);">RESET STATE</button>
           <button type="button" class="btn-clear-keys" id="btnCancelSettings">CANCEL</button>
         </div>
         <button type="button" class="btn-save-apply" id="btnSaveCredentials">SAVE & APPLY SETTINGS</button>
@@ -2909,7 +2910,21 @@
         credentialsLed.className = 'led led-amber';
         logAudit('AUTH', 'API credentials removed from local browser memory.', 'info');
       }
-
+function resetAppState() {
+    state.dailyPnl = 0.00;
+    state.dailyLoss = 0.00;
+    state.startingDailyEquity = state.environment === 'production' ? state.walletBalance : 100.00;
+    state.circuitBreakerTripped = false;
+    state.positions = [];
+    if (riskEngine) riskEngine.resetCircuitBreaker('Manual UI State Reset');
+    updateLossUI();
+    renderPositions();
+    updateEngineStateUI(LOOP_STATES.IDLE);
+    logAudit('SYSTEM', 'Application state and risk metrics manually reset via UI.', 'warn');
+}
+      
+      
+      
       function openSettingsModal() {
         settingsModalOverlay.classList.add('open');
         btnOpenSettings.setAttribute('aria-expanded', 'true');
@@ -3943,6 +3958,8 @@
         btnCancelSettings.addEventListener('click', closeSettingsModal);
         btnSaveCredentials.addEventListener('click', saveCredentials);
         btnClearCredentials.addEventListener('click', clearCredentials);
+        const btnResetState = document.getElementById('btnResetState');
+if (btnResetState) btnResetState.addEventListener('click', resetAppState);
         btnTestConnection.addEventListener('click', testBinanceConnection);
 
         settingsModalOverlay.addEventListener('click', (e) => {
