@@ -33,7 +33,7 @@ export const PROPOSED_SIGNALS = Object.freeze({
 export const SUPERVISOR_DEFAULTS = Object.freeze({
   TIMEOUT_MS: 2500,
   MIN_CONFIDENCE_THRESHOLD: 0.80,
-  ENDPOINT: '/api/supervisor',
+  ENDPOINT: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
   MODEL_NAME: 'gemini-3.8-flash'
 });
 
@@ -155,23 +155,39 @@ export class GeminiSupervisor {
    * Client-side HTTP fetch implementation with timeout signal.
    * @private
    */
-  async _evaluateViaHttp(payload, signal) {
-    const res = await fetch(this.endpoint, {
+   async _evaluateViaHttp(payload, signal) {
+    // 1. Attach the API Key to the URL
+    const apiKey = this.apiKey || '';
+    const url = `${this.endpoint}?key=${apiKey}`;
+
+    // 2. Format the payload into a text prompt for Google
+    const promptText = `Analyze this trade signal and respond with strict JSON: ${JSON.stringify(payload)}`;
+    
+    // 3. Build the specific body Google requires
+    const body = JSON.stringify({
+      contents: [{ parts: [{ text: promptText }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const res = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' },
+      body: body,
       signal
     });
 
     if (!res.ok) {
-      throw new Error(`Supervisor endpoint returned HTTP ${res.status}`);
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText}`);
     }
 
     const json = await res.json();
-    return json;
+    
+    // 4. Unwrap Google's specific response structure
+    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('Empty response from Gemini');
+    
+    return JSON.parse(text);
   }
 
   /**
