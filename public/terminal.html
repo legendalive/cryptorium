@@ -1915,6 +1915,7 @@
           <span class="card-tag card-tag-yellow">LIVE FEED</span>
         </div>
         <div style="display: flex; gap: 6px;">
+          <button type="button" class="btn-subtle" id="btnCopyLogs">COPY LOG</button>
           <button type="button" class="btn-subtle" id="btnClearLogs">CLEAR</button>
         </div>
       </div>
@@ -2613,7 +2614,8 @@
         line.appendChild(tagSpan);
         line.appendChild(msgSpan);
 
-        auditLogTerminal.appendChild(line);
+        // Insert at the top (newest first)
+auditLogTerminal.insertBefore(line, auditLogTerminal.firstChild);
 
         // Limit log lines to 150 for performance
         while (auditLogTerminal.childNodes.length > 150) {
@@ -2626,7 +2628,8 @@
         }
 
         // Auto-scroll
-        auditLogTerminal.scrollTop = auditLogTerminal.scrollHeight;
+        // Scroll to top to show newest log
+auditLogTerminal.scrollTop = 0;
         updateLogCount();
       }
 
@@ -4006,6 +4009,22 @@ if (btnResetState) btnResetState.addEventListener('click', resetAppState);
           btn.addEventListener('click', () => setLogFilter(btn.dataset.filter));
         });
 
+        // COPY LOG FUNCTIONALITY
+const btnCopyLogs = document.getElementById('btnCopyLogs');
+if (btnCopyLogs) {
+    btnCopyLogs.addEventListener('click', () => {
+        const logText = Array.from(auditLogTerminal.querySelectorAll('.log-line'))
+            .map(line => line.textContent)
+            .join('\n');
+        navigator.clipboard.writeText(logText).then(() => {
+            const origText = btnCopyLogs.textContent;
+            btnCopyLogs.textContent = 'COPIED!';
+            setTimeout(() => btnCopyLogs.textContent = origText, 1500);
+        });
+    });
+}
+        
+        
         btnClearLogs.addEventListener('click', () => {
           auditLogTerminal.innerHTML = '';
           updateLogCount();
