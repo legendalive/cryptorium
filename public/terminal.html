@@ -2455,9 +2455,11 @@
       });
 
       // --- PHASE 4: GEMINI AI MARKET REGIME SUPERVISOR INSTANCE ---
-      const geminiSupervisor = new GeminiSupervisor({
-        endpoint: '/api/supervisor',
-        timeoutMs: 2500,
+         const savedGeminiKey = localStorage.getItem(STORAGE_KEYS.GEMINI_KEY) || '';
+   const geminiSupervisor = new GeminiSupervisor({
+   endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
+   apiKey: savedGeminiKey,
+   timeoutMs: 2500,
         confidenceThreshold: 0.80,
         logger: (category, message, level) => {
           logAudit(category, message, level === 'warn' ? 'warn' : level === 'success' ? 'success' : 'info');
