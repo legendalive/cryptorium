@@ -38,7 +38,6 @@ export function formatQuantity(symbol, qty) {
   const numQty = Number(qty);
   if (isNaN(numQty) || numQty <= 0) return '0';
   
-  // Step-size floor math with minimum step floor
   let stepped = Math.floor(numQty / rule.qtyStep) * rule.qtyStep;
   if (stepped === 0) {
     stepped = rule.qtyStep;
@@ -62,7 +61,6 @@ export function formatPrice(symbol, price) {
 
 /**
 Resilient HTTP fetcher with Rate Limit (429 / 418) detection and exponential backoff.
-Backoff steps: 1s, 2s, 4s, 8s... up to 30s.
 Includes CORS proxy routing for private signed requests to bypass browser restrictions on GitHub Pages.
 @param {string} url - Target URL
 @param {Object} options - Fetch options
@@ -133,7 +131,6 @@ export async function checkServerTime(baseUrl = DEFAULT_REST_URL) {
     const clientMidpoint = Math.round((localBefore + localAfter) / 2);
     const serverTime = Number(data.serverTime);
     
-    // Clock drift = server time - client time
     cachedDriftMs = serverTime - clientMidpoint;
     return {
       serverTime,
@@ -141,7 +138,6 @@ export async function checkServerTime(baseUrl = DEFAULT_REST_URL) {
       driftMs: cachedDriftMs
     };
   } catch (error) {
-    // If CORS or offline, fallback to local system time
     return {
       serverTime: Date.now(),
       localTime: Date.now(),
@@ -201,7 +197,6 @@ export async function fetchAccountMetrics(apiKey, apiSecret, baseUrl = DEFAULT_R
   
   const data = await response.json();
   
-  // Extract core conservative metrics
   const walletBalance = parseFloat(data.totalWalletBalance || data.totalCrossWalletBalance || 0);
   const marginUsed = parseFloat(data.totalInitialMargin || data.totalPositionInitialMargin || 0);
   const freeMargin = parseFloat(data.availableBalance || data.maxWithdrawAmount || 0);
@@ -233,7 +228,6 @@ export async function setLeverage(apiKey, apiSecret, symbol, leverage = 2, baseU
     throw new Error('Contract symbol is required');
   }
   
-  // Enforce strict 1x - 2x conservative leverage bounds
   const numericLeverage = Math.round(Number(leverage) || 1);
   const clampedLeverage = Math.max(1, Math.min(2, numericLeverage));
   const timestamp = getSynchronizedTimestamp();
@@ -318,7 +312,6 @@ export async function fetchOpenPositions(apiKey, apiSecret, baseUrl = DEFAULT_RE
     return [];
   }
   
-  // Filter positions where size is non-zero
   const activePositions = rawPositions
     .filter(pos => {
       const amt = parseFloat(pos.positionAmt);
@@ -376,19 +369,16 @@ export async function dispatchOrder(apiKey, apiSecret, orderParams, baseUrl = DE
     `recvWindow=5000`
   ];
   
-  // Precision formatting: enforce step-size floor math
   if (orderParams.quantity !== undefined && orderParams.quantity !== null) {
     const formattedQty = formatQuantity(normalizedSymbol, orderParams.quantity);
     queryParts.push(`quantity=${encodeURIComponent(formattedQty)}`);
   }
   
-  // Precision formatting: tick size rounding
   if (orderParams.stopPrice !== undefined && orderParams.stopPrice !== null) {
     const formattedStop = formatPrice(normalizedSymbol, orderParams.stopPrice);
     queryParts.push(`stopPrice=${encodeURIComponent(formattedStop)}`);
   }
   
-  // Order Reduction Flags
   if (orderParams.reduceOnly) {
     queryParts.push('reduceOnly=true');
   }
@@ -396,7 +386,6 @@ export async function dispatchOrder(apiKey, apiSecret, orderParams, baseUrl = DE
     queryParts.push('closePosition=true');
   }
   
-  // Position Mode Alignment: Binance One-Way Mode (defaults to BOTH or omitted)
   if (orderParams.positionSide) {
     queryParts.push(`positionSide=${encodeURIComponent(orderParams.positionSide.toUpperCase())}`);
   }
