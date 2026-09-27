@@ -155,20 +155,34 @@ export class GeminiSupervisor {
    * Client-side HTTP fetch implementation with timeout signal.
    * @private
    */
-  async _evaluateViaHttp(payload, signal) {
-    const res = await fetch(this.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(payload),
-      signal
-    });
+ async _evaluateViaHttp(payload, signal) {
+  const apiKey = this.apiKey || '';
+  const url = `${this.endpoint}?key=${apiKey}`;
+  const promptText = `Analyze this trade signal and respond with strict JSON: ${JSON.stringify(payload)}`;
+  
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: promptText }] }],
+    generationConfig: { responseMimeType: "application/json" }
+  });
 
-    if (!res.ok) {
-      throw new Error(`Supervisor endpoint returned HTTP ${res.status}`);
-    }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body,
+    signal
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`HTTP ${res.status}: ${errText}`);
+  }
+
+  const json = await res.json();
+  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Empty response from Gemini');
+  
+  return JSON.parse(text);
+}
 
     const json = await res.json();
     return json;
